@@ -46,3 +46,54 @@ Context: {retrieved_chunks}
 
 Question: {user_query}
 ```
+
+## Embeeding
+
+- Converts text into a dense vector (e.g. 1536 floats)
+
+```
+"the cat sat on the mat" -> [0.02, -0.14, 0.87,..] # 1536
+"a feline rested on a rug" -> [0.03, -0.12, 0.85, ...] # very similar
+"stock market crashed" -> [-0.54, 0.91, -0.23,...] # very different
+```
+
+- Semantically similar text -> geometrically close vectors
+
+### Common embedding models
+
+```
+text-embedding-3-small (openai): cheap, good
+text-embedding-3-large (openai): better, pricier
+nomic-embed-text: good open-source option
+```
+
+## Chunking strategy
+
+- Where most RAG quality issues come from
+
+```
+Document → [chunk1][chunk2][chunk3]...
+              ↑overlap↑
+```
+
+- Too large: noisy context, wastes tokens
+- Too small: loses context, fragments meaning
+- Overlap: 10-20% overlap prevents cutting mid-sentence
+
+### Strategies
+
+- Fixed-size (naive, often fine)
+- Recursive character splitting (LangChain default)
+- Semantic chunking (split on meaning shifts)
+- Document-aware (split on headers, paragraphs)
+
+## Retrieval strategies
+
+- Dense retrieval (standard): vector similarity, good for semantic search
+- Sparse retrieval (BM25/keywor): classic keyword matching, good for exact terms, product IDs, names
+- Hybrid search: combine both. Most production systems do this
+- Reranking: after fetching top-20 chunks, use a cross-encoder model to re-score and pick top-5. Improves quality
+
+```
+query -> vector search (top-20) -> reranker -> top-5 -> LLM
+```
