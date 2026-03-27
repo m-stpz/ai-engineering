@@ -172,3 +172,95 @@ Vector db (retrieves) -> prompt (argument) -> LLM (generate)
 - Legal documents require different chunking strategies than a customer support transcript document
   - Legal documents: have longer text that meaning needs to be really precise
   - Customer support transcripts: shorter, and more "self-contained"
+
+## MCP: Model-Context Protocol
+
+- Interface to access "external" world
+- MCP is an API for AI agents
+
+```ts
+const server = new Server({ name: "file-search", version: "1.0.0" });
+
+// 1. declare tools
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: [
+    {
+      name: "search_files",
+      description:
+        "Search files by glob pattern, optionally filtering by content",
+      inputSchema: {
+        type: "object",
+        properties: {
+          pattern: {
+            type: "string",
+            description: "glob pattern e.g. '**/*.ts'",
+          },
+          directory: {
+            type: "string",
+            description: "root directory to search",
+          },
+          content: {
+            type: "string",
+            description: "only return files containing this text",
+          },
+          required: ["pattern"],
+        },
+      },
+    },
+    {
+      name: "read_file",
+      description: "read a file's content",
+      inputSchema: {
+        type: "object",
+        properties: { path: { type: "string" } },
+        required: ["path"],
+      },
+    },
+  ],
+}));
+
+// 2. implement tools
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments } = request.params;
+
+  if (name === "search_files") {
+    const dir = (args.directory as string) ?? process.cwd();
+    let files = await glob(args.pattern as string, {
+      cwd: dir,
+      absolute: true,
+    });
+
+    if (args.content) {
+      const results = [];
+
+      for (const file of files) {
+        const text = await fs.readFile(file, "utf-8").catch(() => "");
+
+        if (text.includes(args.content as string)) {
+          results.push(file);
+        }
+      }
+
+      files = results;
+    }
+
+    return {
+      content: [{ type: "text", text: files.join("\n") } || "No files found"],
+    };
+  }
+
+  if (name === "read_file") {
+    const text = await fs.readFile(args.path as string, "utf-8");
+    return { content: [{ type: "text", text }] };
+  }
+
+  return {
+    content: [{ type: "text", text: `Unknown tool: ${name}` }],
+    isError: true,
+  };
+});
+
+// 3. connect via stdio
+const transport = new StdioServerTransport();
+server.connect(transport);
+```
