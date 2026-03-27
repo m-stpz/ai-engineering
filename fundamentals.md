@@ -35,6 +35,43 @@ video: https://www.youtube.com/watch?v=ZaPbP9DwBOE
 
 - For more in depth, check langchain.md
 
+### LangGraph
+
+- Boosts up LangChain by adding more complex, multi-step workflows
+- Allows the RAG system to go beyond simple questions and answers interactions
+- It makes each step a node, and interconnects them (graph), and each node handles a specific task
+  - Node = individual unit of computation
+  - Nodes are connected through edges
+  - Shared state: the gathered information is shared through the nodes
+
+```
+Customer: I need to understand data privacy policy for EU customers
+
+               | node 1: search + gather
+               |   v
+               | node 2: extract + clean
+               |   v
+ shared state  | node 3: evaluate
+               |   v
+               | node 4: cross reference
+               |   v
+               | node 5: identify + generate
+```
+
+- It allows:
+  - loops
+  - conditional branching
+  - persistence of state through operations
+
+- LangGraph framework for building stateful, multi-step AI workflows using graphs
+- Unlike simple LLM chains, LangGraph gives explicit control over how data flows through application
+
+```
+if/else => programming
+generative-results => AI
+LangGraph => if/else + generative-results
+```
+
 ## Prompt engineering
 
 - Quality of prompt impacts quality of response
@@ -113,6 +150,14 @@ through the overlaps, we ensure context preserval
 - RAG uses a vector db as its retrieval engine
 - RAG is the technique/pattern
 - Vector db is the storage that allows it to work
+- Basically, RAG "connects" the vector db with an LLM
+
+```
+RAG orchestrates the system:
+
+Vector db (retrieves) -> prompt (argument) -> LLM (generate)
+```
+
 - Retrieval: allows the search to work
   - The meaning is stored as embedding, the search is also converted to embedding and they are matched
 - Augmentation: the retrieve data is injected into the prompt at runtime
@@ -120,3 +165,10 @@ through the overlaps, we ensure context preserval
 - Generation: takes the retrieved text chunks (original words, not the vectors) + prompt + LLM to provide an answer
   - retrieved chunk text + prompt + LLM = result (generation)
   - vectors are only used during retrieval. LLM sees plain text
+
+### Calibration
+
+- RAG calibration changes according to its application/usage
+- Legal documents require different chunking strategies than a customer support transcript document
+  - Legal documents: have longer text that meaning needs to be really precise
+  - Customer support transcripts: shorter, and more "self-contained"
