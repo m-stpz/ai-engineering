@@ -177,6 +177,7 @@ Vector db (retrieves) -> prompt (argument) -> LLM (generate)
 
 - Interface to access "external" world
 - MCP is an API for AI agents
+- USB port for AI: standardized way for models to interact with dbs, APIs, and services
 
 ```ts
 const server = new Server({ name: "file-search", version: "1.0.0" });
