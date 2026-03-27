@@ -53,6 +53,7 @@ video: https://www.youtube.com/watch?v=ZaPbP9DwBOE
 
 - Stores by meaning, not by value
 - Ex: pinecone, chromadb
+- They store the embedding (vectors)
 
 ### Embedding
 
@@ -64,6 +65,15 @@ video: https://www.youtube.com/watch?v=ZaPbP9DwBOE
 ```
 value -> embedding -> meaning
 
+1. document -> embedding -> store in db
+2. Query -> embedding -> find similar
+3. return top K results (by cosine similarity)
+
+Example:
+Query: "remote work policy" [0.2, 0.8, ...]
+   |
+   v
+Finds: "work from home guidelines" [0.21, 0.79,...] (98% similarity)
 ```
 
 - holiday & vacation are stored close to each other, since they share a similar meaning
@@ -81,3 +91,32 @@ value -> embedding -> meaning
 - Scoring: threshold of how similar the results need to be to considered a match
 - Chunk overlap: since we take "chunks" of information, in-between content might get cut off
   - Then, we provide some chunk overlap so that context spills over
+  - Large docs must be split into smaller pieces for embedding
+
+```
+Docume: 123abcdef6789
+chunk1: 123
+chunk2:  23abcd
+chunk3:      cdef6
+chunk4:        ef6789
+
+through the overlaps, we ensure context preserval
+```
+
+- Optimal settings:
+  - chunk size: 500 characters (balanced)
+  - overlap: 100 characters (20%)
+  - result: 40% better retrieval accuracy
+
+## RAG: Retrieval-Augmented Generation
+
+- RAG uses a vector db as its retrieval engine
+- RAG is the technique/pattern
+- Vector db is the storage that allows it to work
+- Retrieval: allows the search to work
+  - The meaning is stored as embedding, the search is also converted to embedding and they are matched
+- Augmentation: the retrieve data is injected into the prompt at runtime
+  - It "augments" the prompt with retrieved data
+- Generation: takes the retrieved text chunks (original words, not the vectors) + prompt + LLM to provide an answer
+  - retrieved chunk text + prompt + LLM = result (generation)
+  - vectors are only used during retrieval. LLM sees plain text
