@@ -1,5 +1,7 @@
 # Fundamentals
 
+video: https://www.youtube.com/watch?v=ZaPbP9DwBOE
+
 ## How LLMS work
 
 - They are transformer models, which are trained on absurd amount of data
@@ -37,3 +39,45 @@
 
 - Quality of prompt impacts quality of response
 - More specific == better
+
+### Prompting techniques
+
+- Zero-shot: direct commands without examples
+  - AI relies exclusively on pre-trained knowledge and instructions
+- One-shot: learning from a single example
+  - AI learns format, style, and structure from a single example
+- Few-shot: multiple examples for consistency
+- Chain-of-thought: step-by-step reasoning
+
+## Vector dbs
+
+- Stores by meaning, not by value
+- Ex: pinecone, chromadb
+
+### Embedding
+
+- What allows us to go from value to meaning
+- GPS for meanings
+- Texts gets converter into numbers (coordinates)
+- Computer can now measure "distance" between meanings
+
+```
+value -> embedding -> meaning
+
+```
+
+- holiday & vacation are stored close to each other, since they share a similar meaning
+- embeddings allow computers to understand meaning
+
+> I can't log in and authentication failed => now, even though they don't share any single word, the computer understands that they are talking about the same thing
+
+### Dimensionality
+
+- It's the standard practice to use 1536 dimensions currently
+
+### Retrieval
+
+- Compose by scoring and chunk overlap
+- Scoring: threshold of how similar the results need to be to considered a match
+- Chunk overlap: since we take "chunks" of information, in-between content might get cut off
+  - Then, we provide some chunk overlap so that context spills over
